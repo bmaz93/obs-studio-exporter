@@ -29,7 +29,7 @@ jobs:
         run: |
           sudo add-apt-repository ppa:obsproject/obs-studio
           sudo apt update
-          sudo apt install -y obs-studio
+          sudo apt install -y libsimde-dev obs-studio
       - name: Build
         run: |
           cp /lib/x86_64-linux-gnu/libobs.so.0 ./libobs.so
@@ -86,10 +86,11 @@ jobs:
         run: |
           curl -L -o obs-macos-arm64.dmg "https://cdn-fastly.obsproject.com/downloads/OBS-Studio-${{ env.OBS_VERSION }}-macOS-Apple.dmg"
           hdiutil attach "./obs-macos-arm64.dmg"
+          brew install simde
       - name: Build
         run: |
           cp -R /Volumes/OBS*/OBS.app/Contents/Frameworks/libobs.framework ./libobs.framework
-          go build -buildmode=c-shared -o obs-studio-exporter.so -ldflags="-extldflags=-F$PWD"
+          CGO_CFLAGS="-I$(brew --prefix simde)/include" go build -buildmode=c-shared -o obs-studio-exporter.so -ldflags="-extldflags=-F$PWD"
       - name: Archive artifact
         uses: actions/upload-artifact@v4
         with:
